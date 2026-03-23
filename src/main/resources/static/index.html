@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexaBank ATM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #050810;
+      --surface:  #0b1120;
+      --card:     #0e1628;
+      --border:   #1a2e55;
+      --accent:   #00d4ff;
+      --accent2:  #0090cc;
+      --green:    #00ff88;
+      --red:      #ff4466;
+      --yellow:   #ffd700;
+      --text:     #c8deff;
+      --muted:    #4a6080;
+      --mono:     'Share Tech Mono', monospace;
+      --sans:     'Rajdhani', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* ── GRID BG ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%; padding: 18px 32px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: rgba(11,17,32,0.95);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-family: var(--mono); font-size: 22px; letter-spacing: 3px;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(0,212,255,0.5);
+    }
+    .logo span { color: var(--green); }
+    #header-info {
+      font-family: var(--mono); font-size: 12px; color: var(--muted);
+      text-align: right; line-height: 1.6;
+    }
+    #header-info .acc-name { color: var(--accent); font-size: 13px; }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      width: 100%; max-width: 900px;
+      padding: 32px 16px; position: relative; z-index: 1;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; animation: fadeIn .3s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .card-title {
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: 4px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 24px;
+    }
+
+    /* ── LANDING ── */
+    .landing-hero {
+      text-align: center; padding: 60px 20px;
+    }
+    .atm-icon {
+      font-size: 64px; margin-bottom: 16px;
+      filter: drop-shadow(0 0 20px rgba(0,212,255,0.4));
+    }
+    .landing-hero h1 {
+      font-family: var(--mono); font-size: 36px;
+      color: var(--accent); letter-spacing: 4px;
+      text-shadow: 0 0 30px rgba(0,212,255,0.4);
+      margin-bottom: 8px;
+    }
+    .landing-hero p {
+      color: var(--muted); font-size: 14px; margin-bottom: 40px;
+      letter-spacing: 1px;
+    }
+    .btn-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      font-family: var(--sans); font-size: 15px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      padding: 13px 32px; border-radius: 6px; cursor: pointer;
+      border: none; transition: all .2s; position: relative; overflow: hidden;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent2), var(--accent));
+      color: #000;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,212,255,0.3); }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+    .btn-secondary:hover { background: rgba(0,212,255,0.08); transform: translateY(-2px); }
+    .btn-danger {
+      background: transparent; border: 1px solid var(--red); color: var(--red);
+    }
+    .btn-danger:hover { background: rgba(255,68,102,0.1); }
+    .btn-sm { padding: 8px 20px; font-size: 13px; letter-spacing: 1px; }
+    .btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
+
+    /* ── FORMS ── */
+    .form-group { margin-bottom: 20px; }
+    label {
+      display: block; font-size: 11px; letter-spacing: 2px;
+      color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+      font-family: var(--mono);
+    }
+    input {
+      width: 100%; padding: 12px 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text);
+      font-family: var(--mono); font-size: 15px;
+      transition: border-color .2s;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+    input::placeholder { color: var(--muted); }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── DEMO ACCOUNTS BOX ── */
+    .demo-box {
+      background: rgba(0,212,255,0.04);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 8px; padding: 16px; margin-bottom: 24px;
+    }
+    .demo-box h4 { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 2px; margin-bottom: 10px; }
+    .demo-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px; font-family: var(--mono);
+    }
+    .demo-row:last-child { border-bottom: none; }
+    .demo-fill {
+      background: rgba(0,212,255,0.1); border: none;
+      color: var(--accent); padding: 3px 10px; border-radius: 4px;
+      cursor: pointer; font-size: 11px; letter-spacing: 1px; font-family: var(--mono);
+    }
+    .demo-fill:hover { background: rgba(0,212,255,0.2); }
+
+    /* ── BALANCE DISPLAY ── */
+    .balance-display {
+      text-align: center; padding: 32px;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(0,144,204,0.05));
+      margin-bottom: 24px;
+      position: relative; overflow: hidden;
+    }
+    .balance-display::after {
+      content: '₹';
+      position: absolute; right: 20px; bottom: -10px;
+      font-size: 100px; color: rgba(0,212,255,0.04);
+      font-family: var(--mono);
+    }
+    .balance-label { font-family: var(--mono); font-size: 11px; letter-spacing: 3px; color: var(--muted); }
+    .balance-amount {
+      font-family: var(--mono); font-size: 42px; color: var(--green);
+      text-shadow: 0 0 20px rgba(0,255,136,0.3);
+      letter-spacing: 2px; margin: 8px 0 4px;
+    }
+    .balance-account { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+    /* ── QUICK ACTIONS ── */
+    .quick-actions {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+      margin-bottom: 24px;
+    }
+    .action-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 20px; cursor: pointer;
+      transition: all .2s; text-align: center;
+    }
+    .action-card:hover {
+      border-color: var(--accent); background: rgba(0,212,255,0.05);
+      transform: translateY(-2px);
+    }
+    .action-icon { font-size: 28px; margin-bottom: 8px; }
+    .action-label { font-size: 13px; font-weight: 600; letter-spacing: 1px; color: var(--text); }
+
+    /* ── TRANSACTION TABLE ── */
+    .txn-list { list-style: none; }
+    .txn-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+      animation: fadeIn .3s ease;
+    }
+    .txn-item:last-child { border-bottom: none; }
+    .txn-left { display: flex; align-items: center; gap: 12px; }
+    .txn-badge {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .txn-badge.deposit   { background: rgba(0,255,136,0.1); }
+    .txn-badge.withdraw  { background: rgba(255,68,102,0.1); }
+    .txn-badge.transfer  { background: rgba(255,215,0,0.1); }
+    .txn-desc { font-size: 14px; font-weight: 500; }
+    .txn-time { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    .txn-right { text-align: right; }
+    .txn-amount { font-family: var(--mono); font-size: 15px; font-weight: 600; }
+    .txn-amount.cr { color: var(--green); }
+    .txn-amount.dr { color: var(--red); }
+    .txn-balance { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+    /* ── ALERT ── */
+    .alert {
+      padding: 12px 16px; border-radius: 6px; margin-bottom: 16px;
+      font-family: var(--mono); font-size: 13px; display: none;
+    }
+    .alert.show { display: block; animation: fadeIn .2s; }
+    .alert-success { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); color: var(--green); }
+    .alert-error   { background: rgba(255,68,102,0.1); border: 1px solid rgba(255,68,102,0.3); color: var(--red); }
+
+    /* ── NAV ── */
+    .dash-nav {
+      display: flex; gap: 4px; margin-bottom: 24px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 4px;
+    }
+    .dash-nav button {
+      flex: 1; padding: 10px; border: none; border-radius: 6px;
+      background: transparent; color: var(--muted);
+      font-family: var(--sans); font-size: 13px; font-weight: 600;
+      letter-spacing: 1px; cursor: pointer; transition: all .2s;
+    }
+    .dash-nav button.active {
+      background: rgba(0,212,255,0.15); color: var(--accent);
+    }
+
+    .dash-panel { display: none; }
+    .dash-panel.active { display: block; animation: fadeIn .3s; }
+
+    /* ── TICKER ── */
+    .status-bar {
+      font-family: var(--mono); font-size: 11px; color: var(--muted);
+      text-align: center; padding: 8px; letter-spacing: 2px;
+    }
+    .dot { display: inline-block; width: 6px; height: 6px; background: var(--green);
+           border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .back-link {
+      font-family: var(--mono); font-size: 12px; color: var(--muted);
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      margin-bottom: 20px; transition: color .2s;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    @media (max-width: 640px) {
+      .form-row, .two-col, .quick-actions { grid-template-columns: 1fr; }
+      .balance-amount { font-size: 30px; }
+      .landing-hero h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">NEXA<span>BANK</span></div>
+  <div id="header-info">
+    <div class="acc-name" id="hdr-name">— NOT LOGGED IN —</div>
+    <div id="hdr-acc">Secure ATM Portal • v2.0</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ═══════════════════ LANDING ═══════════════════ -->
+  <div class="screen active" id="screen-landing">
+    <div class="landing-hero">
+      <div class="atm-icon">🏧</div>
+      <h1>NEXABANK ATM</h1>
+      <p>SECURE DIGITAL BANKING SYSTEM</p>
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="show('screen-login')">LOGIN TO ACCOUNT</button>
+        <button class="btn btn-secondary" onclick="show('screen-create')">OPEN NEW ACCOUNT</button>
+      </div>
+    </div>
+    <div class="status-bar"><span class="dot"></span>SYSTEM ONLINE • ALL SERVICES OPERATIONAL</div>
+  </div>
+
+  <!-- ═══════════════════ LOGIN ═══════════════════ -->
+  <div class="screen" id="screen-login">
+    <span class="back-link" onclick="show('screen-landing')">← BACK</span>
+    <div class="card">
+      <div class="card-title">// ACCOUNT LOGIN</div>
+      <div class="demo-box">
+        <h4>🔑 DEMO ACCOUNTS (click USE to fill)</h4>
+        <div class="demo-row">
+          <span>Uday Sharma</span>
+          <span style="color:var(--muted)">ACC: 10010001 | PIN: 1234 | BAL: ₹50,000</span>
+          <button class="demo-fill" onclick="fillLogin('10010001','1234')">USE</button>
+        </div>
+        <div class="demo-row">
+          <span>Priya Patel</span>
+          <span style="color:var(--muted)">ACC: 10010002 | PIN: 5678 | BAL: ₹25,000</span>
+          <button class="demo-fill" onclick="fillLogin('10010002','5678')">USE</button>
+        </div>
+        <div class="demo-row">
+          <span>Rohan Mehta</span>
+          <span style="color:var(--muted)">ACC: 10010003 | PIN: 9999 | BAL: ₹10,000</span>
+          <button class="demo-fill" onclick="fillLogin('10010003','9999')">USE</button>
+        </div>
+      </div>
+      <div id="login-alert" class="alert"></div>
+      <div class="form-group">
+        <label>Account Number</label>
+        <input id="login-acc" type="text" placeholder="Enter account number" maxlength="12" />
+      </div>
+      <div class="form-group">
+        <label>4-Digit PIN</label>
+        <input id="login-pin" type="password" placeholder="• • • •" maxlength="4" />
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="doLogin()">ACCESS ACCOUNT</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ CREATE ACCOUNT ═══════════════════ -->
+  <div class="screen" id="screen-create">
+    <span class="back-link" onclick="show('screen-landing')">← BACK</span>
+    <div class="card">
+      <div class="card-title">// OPEN NEW ACCOUNT</div>
+      <div id="create-alert" class="alert"></div>
+      <div class="form-group">
+        <label>Full Name</label>
+        <input id="create-name" type="text" placeholder="Your full name" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>4-Digit PIN</label>
+          <input id="create-pin" type="password" placeholder="Choose PIN" maxlength="4" />
+        </div>
+        <div class="form-group">
+          <label>Initial Deposit (min ₹500)</label>
+          <input id="create-deposit" type="number" placeholder="e.g. 5000" min="500" />
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="doCreate()">CREATE ACCOUNT</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ DASHBOARD ═══════════════════ -->
+  <div class="screen" id="screen-dash">
+    <div class="balance-display">
+      <div class="balance-label">AVAILABLE BALANCE</div>
+      <div class="balance-amount" id="dash-balance">₹0.00</div>
+      <div class="balance-account" id="dash-acc-info">—</div>
+    </div>
+
+    <div class="dash-nav">
+      <button class="active" onclick="switchPanel('overview')">OVERVIEW</button>
+      <button onclick="switchPanel('deposit')">DEPOSIT</button>
+      <button onclick="switchPanel('withdraw')">WITHDRAW</button>
+      <button onclick="switchPanel('transfer')">TRANSFER</button>
+      <button onclick="switchPanel('history')">HISTORY</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="dash-panel active" id="panel-overview">
+      <div class="quick-actions">
+        <div class="action-card" onclick="switchPanel('deposit')">
+          <div class="action-icon">💰</div>
+          <div class="action-label">DEPOSIT</div>
+        </div>
+        <div class="action-card" onclick="switchPanel('withdraw')">
+          <div class="action-icon">🏧</div>
+          <div class="action-label">WITHDRAW</div>
+        </div>
+        <div class="action-card" onclick="switchPanel('transfer')">
+          <div class="action-icon">⚡</div>
+          <div class="action-label">TRANSFER</div>
+        </div>
+        <div class="action-card" onclick="switchPanel('history')">
+          <div class="action-icon">📋</div>
+          <div class="action-label">HISTORY</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <button class="btn btn-danger btn-sm" onclick="logout()">LOGOUT</button>
+      </div>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div class="dash-panel" id="panel-deposit">
+      <div class="card">
+        <div class="card-title">// CASH DEPOSIT</div>
+        <div id="deposit-alert" class="alert"></div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input id="dep-amount" type="number" placeholder="Enter amount" min="1" />
+        </div>
+        <div class="form-group">
+          <label>Note (optional)</label>
+          <input id="dep-note" type="text" placeholder="e.g. Salary, Gift..." />
+        </div>
+        <button class="btn btn-primary" onclick="doDeposit()">DEPOSIT NOW</button>
+      </div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div class="dash-panel" id="panel-withdraw">
+      <div class="card">
+        <div class="card-title">// CASH WITHDRAWAL</div>
+        <div id="withdraw-alert" class="alert"></div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input id="wdw-amount" type="number" placeholder="Enter amount" min="1" />
+        </div>
+        <div class="form-group">
+          <label>Note (optional)</label>
+          <input id="wdw-note" type="text" placeholder="e.g. Rent, Food..." />
+        </div>
+        <button class="btn btn-primary" onclick="doWithdraw()">WITHDRAW NOW</button>
+      </div>
+    </div>
+
+    <!-- TRANSFER -->
+    <div class="dash-panel" id="panel-transfer">
+      <div class="card">
+        <div class="card-title">// FUND TRANSFER</div>
+        <div id="transfer-alert" class="alert"></div>
+        <div class="form-group">
+          <label>Recipient Account Number</label>
+          <input id="txfr-to" type="text" placeholder="Enter account number" />
+        </div>
+        <div class="form-group">
+          <label>Amount (₹)</label>
+          <input id="txfr-amount" type="number" placeholder="Enter amount" min="1" />
+        </div>
+        <button class="btn btn-primary" onclick="doTransfer()">TRANSFER NOW</button>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="dash-panel" id="panel-history">
+      <div class="card">
+        <div class="card-title">// TRANSACTION HISTORY</div>
+        <ul class="txn-list" id="txn-list">
+          <li style="text-align:center;padding:20px;color:var(--muted);font-family:var(--mono);font-size:13px;">
+            Loading transactions...
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div><!-- /screen-dash -->
+
+</main>
+
+<script>
+  // ── STATE ──
+  let currentAccount = null;
+
+  // ── NAVIGATION ──
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function switchPanel(name) {
+    document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.dash-nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    event.target.classList.add('active');
+    if (name === 'history') loadHistory();
+    clearAlerts();
+  }
+
+  function clearAlerts() {
+    document.querySelectorAll('.alert').forEach(a => { a.className = 'alert'; a.textContent = ''; });
+  }
+
+  function showAlert(id, msg, type) {
+    const el = document.getElementById(id);
+    el.className = 'alert show alert-' + type;
+    el.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
+    setTimeout(() => { el.className = 'alert'; }, 4000);
+  }
+
+  // ── HEADER UPDATE ──
+  function updateHeader() {
+    if (currentAccount) {
+      document.getElementById('hdr-name').textContent = currentAccount.holderName.toUpperCase();
+      document.getElementById('hdr-acc').textContent = 'ACC: ' + currentAccount.maskedAccount;
+    } else {
+      document.getElementById('hdr-name').textContent = '— NOT LOGGED IN —';
+      document.getElementById('hdr-acc').textContent = 'Secure ATM Portal • v2.0';
+    }
+  }
+
+  function updateBalanceDisplay(balance) {
+    document.getElementById('dash-balance').textContent =
+      '₹' + parseFloat(balance).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    document.getElementById('dash-acc-info').textContent =
+      currentAccount.holderName + ' • ' + currentAccount.maskedAccount;
+  }
+
+  // ── DEMO FILL ──
+  function fillLogin(acc, pin) {
+    document.getElementById('login-acc').value = acc;
+    document.getElementById('login-pin').value = pin;
+  }
+
+  // ── API HELPERS ──
+  async function api(method, endpoint, body) {
+    const opts = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body) opts.body = JSON.stringify(body);
+    const r = await fetch('/api' + endpoint, opts);
+    return r.json();
+  }
+
+  // ── LOGIN ──
+  async function doLogin() {
+    const acc = document.getElementById('login-acc').value.trim();
+    const pin = document.getElementById('login-pin').value.trim();
+    if (!acc || !pin) { showAlert('login-alert', 'Please fill all fields.', 'error'); return; }
+    const data = await api('POST', '/account/login', { accountNumber: acc, pin });
+    if (data.success) {
+      currentAccount = data;
+      updateHeader();
+      updateBalanceDisplay(data.balance);
+      show('screen-dash');
+      switchPanel('overview');
+    } else {
+      showAlert('login-alert', data.message, 'error');
+    }
+  }
+
+  // ── CREATE ──
+  async function doCreate() {
+    const name    = document.getElementById('create-name').value.trim();
+    const pin     = document.getElementById('create-pin').value.trim();
+    const deposit = parseFloat(document.getElementById('create-deposit').value);
+    if (!name || !pin || !deposit) { showAlert('create-alert', 'Please fill all fields.', 'error'); return; }
+    const data = await api('POST', '/account/create', { name, pin, initialDeposit: deposit });
+    if (data.success) {
+      showAlert('create-alert',
+        data.message + ' Your Account No: ' + data.accountNumber, 'success');
+      document.getElementById('create-name').value = '';
+      document.getElementById('create-pin').value = '';
+      document.getElementById('create-deposit').value = '';
+    } else {
+      showAlert('create-alert', data.message, 'error');
+    }
+  }
+
+  // ── DEPOSIT ──
+  async function doDeposit() {
+    const amount = parseFloat(document.getElementById('dep-amount').value);
+    const note   = document.getElementById('dep-note').value;
+    if (!amount) { showAlert('deposit-alert', 'Enter a valid amount.', 'error'); return; }
+    const data = await api('POST', '/transaction/deposit', {
+      accountNumber: currentAccount.accountNumber, amount, note
+    });
+    if (data.success) {
+      currentAccount.balance = data.newBalance;
+      updateBalanceDisplay(data.newBalance);
+      showAlert('deposit-alert', data.message, 'success');
+      document.getElementById('dep-amount').value = '';
+      document.getElementById('dep-note').value = '';
+    } else {
+      showAlert('deposit-alert', data.message, 'error');
+    }
+  }
+
+  // ── WITHDRAW ──
+  async function doWithdraw() {
+    const amount = parseFloat(document.getElementById('wdw-amount').value);
+    const note   = document.getElementById('wdw-note').value;
+    if (!amount) { showAlert('withdraw-alert', 'Enter a valid amount.', 'error'); return; }
+    const data = await api('POST', '/transaction/withdraw', {
+      accountNumber: currentAccount.accountNumber, amount, note
+    });
+    if (data.success) {
+      currentAccount.balance = data.newBalance;
+      updateBalanceDisplay(data.newBalance);
+      showAlert('withdraw-alert', data.message, 'success');
+      document.getElementById('wdw-amount').value = '';
+    } else {
+      showAlert('withdraw-alert', data.message, 'error');
+    }
+  }
+
+  // ── TRANSFER ──
+  async function doTransfer() {
+    const toAcc  = document.getElementById('txfr-to').value.trim();
+    const amount = parseFloat(document.getElementById('txfr-amount').value);
+    if (!toAcc || !amount) { showAlert('transfer-alert', 'Fill all fields.', 'error'); return; }
+    const data = await api('POST', '/transaction/transfer', {
+      fromAccount: currentAccount.accountNumber, toAccount: toAcc, amount
+    });
+    if (data.success) {
+      currentAccount.balance = data.newBalance;
+      updateBalanceDisplay(data.newBalance);
+      showAlert('transfer-alert', data.message, 'success');
+      document.getElementById('txfr-to').value = '';
+      document.getElementById('txfr-amount').value = '';
+    } else {
+      showAlert('transfer-alert', data.message, 'error');
+    }
+  }
+
+  // ── HISTORY ──
+  async function loadHistory() {
+    const data = await api('GET', '/transaction/history/' + currentAccount.accountNumber);
+    const list = document.getElementById('txn-list');
+    if (!data.success || !data.transactions.length) {
+      list.innerHTML = '<li style="text-align:center;padding:20px;color:var(--muted);font-family:var(--mono);font-size:13px;">No transactions yet.</li>';
+      return;
+    }
+    const icons = { DEPOSIT:'💚', WITHDRAW:'🔴', TRANSFER_OUT:'🟡', TRANSFER_IN:'🟢' };
+    const badges = { DEPOSIT:'deposit', WITHDRAW:'withdraw', TRANSFER_OUT:'transfer', TRANSFER_IN:'transfer' };
+    list.innerHTML = data.transactions.map(t => {
+      const cr = t.type === 'DEPOSIT' || t.type === 'TRANSFER_IN';
+      return `<li class="txn-item">
+        <div class="txn-left">
+          <div class="txn-badge ${badges[t.type] || 'deposit'}">${icons[t.type] || '💳'}</div>
+          <div>
+            <div class="txn-desc">${t.description}</div>
+            <div class="txn-time">${t.timestamp}</div>
+          </div>
+        </div>
+        <div class="txn-right">
+          <div class="txn-amount ${cr ? 'cr' : 'dr'}">${cr ? '+' : '-'}₹${t.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+          <div class="txn-balance">Bal: ₹${t.balanceAfter.toLocaleString('en-IN', {minimumFractionDigits: 2})}</div>
+        </div>
+      </li>`;
+    }).join('');
+  }
+
+  // ── LOGOUT ──
+  function logout() {
+    currentAccount = null;
+    updateHeader();
+    document.getElementById('login-acc').value = '';
+    document.getElementById('login-pin').value = '';
+    show('screen-landing');
+  }
+</script>
+</body>
+</html>
