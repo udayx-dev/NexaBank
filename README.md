@@ -61,14 +61,9 @@ http://localhost:8080
 
 ---
 
-## 🌐 Hosting on Railway (FREE)
+## 🌐 Hosting on Render
 
-1. Push this project to a GitHub repository
-2. Go to [railway.app](https://railway.app) → Sign up with GitHub
-3. Click **New Project** → **Deploy from GitHub Repo**
-4. Select your repo — Railway auto-detects Spring Boot!
-5. Click **Deploy** → Wait 2-3 mins
-6. Your app is live at `https://your-app.up.railway.app` 🎉
+Link- https://nexabank-17wp.onrender.com/
 
 ---
 
