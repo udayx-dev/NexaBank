@@ -5,498 +5,1000 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NexaBank ATM</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <style>
     :root {
-      --bg:       #050810;
-      --surface:  #0b1120;
-      --card:     #0e1628;
-      --border:   #1a2e55;
-      --accent:   #00d4ff;
-      --accent2:  #0090cc;
-      --green:    #00ff88;
-      --red:      #ff4466;
-      --yellow:   #ffd700;
-      --text:     #c8deff;
-      --muted:    #4a6080;
-      --mono:     'Share Tech Mono', monospace;
-      --sans:     'Rajdhani', sans-serif;
+      --bg:         #020509;
+      --bg2:        #060d18;
+      --surface:    rgba(10,20,40,0.7);
+      --glass:      rgba(15,30,60,0.6);
+      --glass2:     rgba(20,40,80,0.4);
+      --border:     rgba(80,160,255,0.12);
+      --border2:    rgba(80,160,255,0.25);
+      --cyan:       #00e5ff;
+      --cyan2:      #0099cc;
+      --purple:     #a855f7;
+      --pink:       #ec4899;
+      --green:      #10ffb0;
+      --red:        #ff3366;
+      --yellow:     #fbbf24;
+      --text:       #e2eeff;
+      --text2:      #7a9cc8;
+      --text3:      #3a5a80;
+      --mono:       'JetBrains Mono', monospace;
+      --sans:       'Space Grotesk', sans-serif;
+      --radius:     16px;
+      --radius-sm:  10px;
+      --shadow:     0 8px 32px rgba(0,0,0,0.4);
+      --glow-cyan:  0 0 30px rgba(0,229,255,0.15);
+      --glow-purple:0 0 30px rgba(168,85,247,0.15);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
 
     body {
       background: var(--bg);
       color: var(--text);
       font-family: var(--sans);
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       overflow-x: hidden;
     }
 
-    /* ── GRID BG ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
+    /* ══════════════════════════════════════
+       ANIMATED BACKGROUND
+    ══════════════════════════════════════ */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    }
+    .bg-orb {
+      position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.12;
+      animation: orbFloat 20s ease-in-out infinite;
+    }
+    .bg-orb-1 { width: 600px; height: 600px; background: var(--cyan);   top: -200px; left: -200px; animation-delay: 0s; }
+    .bg-orb-2 { width: 500px; height: 500px; background: var(--purple); bottom: -100px; right: -100px; animation-delay: -7s; }
+    .bg-orb-3 { width: 300px; height: 300px; background: var(--pink);   top: 40%; left: 50%; animation-delay: -14s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(40px, -40px) scale(1.05); }
+      66%       { transform: translate(-30px, 30px) scale(0.95); }
+    }
+
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
       background-image:
-        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none; z-index: 0;
+        linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse at 50% 50%, black 40%, transparent 80%);
     }
 
-    /* ── HEADER ── */
+    /* ══════════════════════════════════════
+       LAYOUT WRAPPER
+    ══════════════════════════════════════ */
+    .app-wrap {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; min-height: 100vh;
+    }
+
+    /* ══════════════════════════════════════
+       HEADER / NAVBAR
+    ══════════════════════════════════════ */
     header {
-      width: 100%; padding: 18px 32px;
+      width: 100%;
+      padding: 0 40px;
+      height: 68px;
       display: flex; align-items: center; justify-content: space-between;
+      background: rgba(2,5,9,0.8);
+      backdrop-filter: blur(24px);
       border-bottom: 1px solid var(--border);
-      background: rgba(11,17,32,0.95);
-      backdrop-filter: blur(12px);
-      position: sticky; top: 0; z-index: 100;
+      position: sticky; top: 0; z-index: 200;
     }
+
     .logo {
-      font-family: var(--mono); font-size: 22px; letter-spacing: 3px;
-      color: var(--accent);
-      text-shadow: 0 0 20px rgba(0,212,255,0.5);
+      display: flex; align-items: center; gap: 12px;
     }
-    .logo span { color: var(--green); }
-    #header-info {
-      font-family: var(--mono); font-size: 12px; color: var(--muted);
-      text-align: right; line-height: 1.6;
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--cyan2), var(--cyan));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; color: #000;
+      box-shadow: 0 0 20px rgba(0,229,255,0.35);
     }
-    #header-info .acc-name { color: var(--accent); font-size: 13px; }
+    .logo-text {
+      font-family: var(--mono); font-size: 18px; font-weight: 700;
+      letter-spacing: 2px; color: var(--text);
+    }
+    .logo-text span { color: var(--cyan); }
 
-    /* ── MAIN LAYOUT ── */
-    main {
-      width: 100%; max-width: 900px;
-      padding: 32px 16px; position: relative; z-index: 1;
+    .header-right {
+      display: flex; align-items: center; gap: 20px;
     }
-
-    /* ── SCREENS ── */
-    .screen { display: none; animation: fadeIn .3s ease; }
-    .screen.active { display: block; }
-    @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
-
-    /* ── CARD ── */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 32px;
-      position: relative;
-      overflow: hidden;
-    }
-    .card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    }
-    .card-title {
-      font-family: var(--mono); font-size: 11px;
-      letter-spacing: 4px; color: var(--muted);
-      text-transform: uppercase; margin-bottom: 24px;
-    }
-
-    /* ── LANDING ── */
-    .landing-hero {
-      text-align: center; padding: 60px 20px;
-    }
-    .atm-icon {
-      font-size: 64px; margin-bottom: 16px;
-      filter: drop-shadow(0 0 20px rgba(0,212,255,0.4));
-    }
-    .landing-hero h1 {
-      font-family: var(--mono); font-size: 36px;
-      color: var(--accent); letter-spacing: 4px;
-      text-shadow: 0 0 30px rgba(0,212,255,0.4);
-      margin-bottom: 8px;
-    }
-    .landing-hero p {
-      color: var(--muted); font-size: 14px; margin-bottom: 40px;
+    .status-pill {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(16,255,176,0.07); border: 1px solid rgba(16,255,176,0.2);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: 12px; color: var(--green); font-family: var(--mono);
       letter-spacing: 1px;
     }
-    .btn-group { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,255,176,0.4)} 50%{opacity:.7;box-shadow:0 0 0 4px rgba(16,255,176,0)} }
 
-    /* ── BUTTONS ── */
+    #hdr-user {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--text2);
+    }
+    #hdr-user .avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: #fff;
+    }
+    #hdr-name { font-weight: 600; color: var(--text); font-size: 14px; }
+    #hdr-acc  { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+    /* ══════════════════════════════════════
+       MAIN
+    ══════════════════════════════════════ */
+    main {
+      flex: 1; width: 100%; max-width: 960px;
+      margin: 0 auto; padding: 48px 24px;
+    }
+
+    /* ══════════════════════════════════════
+       SCREENS
+    ══════════════════════════════════════ */
+    .screen { display: none; }
+    .screen.active {
+      display: block;
+      animation: screenIn .4s cubic-bezier(.22,.68,0,1.2);
+    }
+    @keyframes screenIn {
+      from { opacity:0; transform: translateY(20px) scale(.98); }
+      to   { opacity:1; transform: none; }
+    }
+
+    /* ══════════════════════════════════════
+       GLASS CARD
+    ══════════════════════════════════════ */
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px;
+      position: relative; overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: border-color .3s;
+    }
+    .card:hover { border-color: var(--border2); }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--cyan) 40%, var(--purple) 70%, transparent 100%);
+      opacity: .6;
+    }
+    .card-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; margin-bottom: 20px;
+    }
+    .card-title {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: 4px; color: var(--text3);
+      text-transform: uppercase; margin-bottom: 28px;
+    }
+
+    /* ══════════════════════════════════════
+       LANDING
+    ══════════════════════════════════════ */
+    .landing-hero {
+      text-align: center; padding: 70px 20px 40px;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,229,255,0.07); border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 30px; padding: 7px 18px; margin-bottom: 28px;
+      font-size: 12px; font-family: var(--mono); color: var(--cyan); letter-spacing: 1.5px;
+    }
+    .hero-title {
+      font-size: clamp(38px, 7vw, 64px); font-weight: 700;
+      line-height: 1.1; letter-spacing: -1px; margin-bottom: 16px;
+    }
+    .hero-title .grad-cyan {
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      color: var(--text2); font-size: 16px; max-width: 460px;
+      margin: 0 auto 44px; line-height: 1.6;
+    }
+    .btn-group { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── LANDING CARDS ── */
+    .feature-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      margin-top: 60px;
+    }
+    .feat-card {
+      background: var(--glass2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 22px;
+      transition: all .3s;
+    }
+    .feat-card:hover { border-color: var(--border2); transform: translateY(-4px); box-shadow: var(--glow-cyan); }
+    .feat-icon { font-size: 22px; margin-bottom: 10px; }
+    .feat-title { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+    .feat-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+    /* ══════════════════════════════════════
+       BUTTONS
+    ══════════════════════════════════════ */
     .btn {
-      font-family: var(--sans); font-size: 15px; font-weight: 600;
-      letter-spacing: 2px; text-transform: uppercase;
-      padding: 13px 32px; border-radius: 6px; cursor: pointer;
-      border: none; transition: all .2s; position: relative; overflow: hidden;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent2), var(--accent));
-      color: #000;
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,212,255,0.3); }
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-    }
-    .btn-secondary:hover { background: rgba(0,212,255,0.08); transform: translateY(-2px); }
-    .btn-danger {
-      background: transparent; border: 1px solid var(--red); color: var(--red);
-    }
-    .btn-danger:hover { background: rgba(255,68,102,0.1); }
-    .btn-sm { padding: 8px 20px; font-size: 13px; letter-spacing: 1px; }
-    .btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
-
-    /* ── FORMS ── */
-    .form-group { margin-bottom: 20px; }
-    label {
-      display: block; font-size: 11px; letter-spacing: 2px;
-      color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
-      font-family: var(--mono);
-    }
-    input {
-      width: 100%; padding: 12px 16px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 6px; color: var(--text);
-      font-family: var(--mono); font-size: 15px;
-      transition: border-color .2s;
-      outline: none;
-    }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
-    input::placeholder { color: var(--muted); }
-
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-    /* ── DEMO ACCOUNTS BOX ── */
-    .demo-box {
-      background: rgba(0,212,255,0.04);
-      border: 1px solid rgba(0,212,255,0.15);
-      border-radius: 8px; padding: 16px; margin-bottom: 24px;
-    }
-    .demo-box h4 { font-family: var(--mono); font-size: 11px; color: var(--accent); letter-spacing: 2px; margin-bottom: 10px; }
-    .demo-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-      font-size: 13px; font-family: var(--mono);
-    }
-    .demo-row:last-child { border-bottom: none; }
-    .demo-fill {
-      background: rgba(0,212,255,0.1); border: none;
-      color: var(--accent); padding: 3px 10px; border-radius: 4px;
-      cursor: pointer; font-size: 11px; letter-spacing: 1px; font-family: var(--mono);
-    }
-    .demo-fill:hover { background: rgba(0,212,255,0.2); }
-
-    /* ── BALANCE DISPLAY ── */
-    .balance-display {
-      text-align: center; padding: 32px;
-      border: 1px solid var(--border); border-radius: 12px;
-      background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(0,144,204,0.05));
-      margin-bottom: 24px;
+      font-family: var(--sans); font-size: 14px; font-weight: 600;
+      letter-spacing: .5px; padding: 13px 28px;
+      border-radius: 12px; cursor: pointer; border: none;
+      transition: all .25s cubic-bezier(.22,.68,0,1.2);
+      display: inline-flex; align-items: center; gap: 8px;
       position: relative; overflow: hidden;
     }
-    .balance-display::after {
-      content: '₹';
-      position: absolute; right: 20px; bottom: -10px;
-      font-size: 100px; color: rgba(0,212,255,0.04);
-      font-family: var(--mono);
+    .btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: white; opacity: 0; transition: opacity .2s;
     }
-    .balance-label { font-family: var(--mono); font-size: 11px; letter-spacing: 3px; color: var(--muted); }
+    .btn:hover::after { opacity: .05; }
+    .btn:active { transform: scale(.97); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan2) 0%, var(--cyan) 100%);
+      color: #000; font-weight: 700;
+      box-shadow: 0 4px 20px rgba(0,229,255,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,229,255,0.45); }
+
+    .btn-ghost {
+      background: rgba(0,229,255,0.06);
+      border: 1px solid rgba(0,229,255,0.25);
+      color: var(--cyan);
+    }
+    .btn-ghost:hover { background: rgba(0,229,255,0.12); transform: translateY(-2px); }
+
+    .btn-danger {
+      background: rgba(255,51,102,0.08);
+      border: 1px solid rgba(255,51,102,0.3);
+      color: var(--red);
+    }
+    .btn-danger:hover { background: rgba(255,51,102,0.15); }
+
+    .btn-purple {
+      background: linear-gradient(135deg, #7c3aed, var(--purple));
+      color: #fff; box-shadow: 0 4px 20px rgba(168,85,247,0.3);
+    }
+    .btn-purple:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(168,85,247,0.45); }
+
+    .btn-full { width: 100%; justify-content: center; }
+    .btn-sm { padding: 9px 20px; font-size: 13px; border-radius: 9px; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; transform: none !important; }
+
+    /* ══════════════════════════════════════
+       FORMS
+    ══════════════════════════════════════ */
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; font-weight: 600; letter-spacing: 1px;
+      color: var(--text2); text-transform: uppercase; margin-bottom: 9px;
+    }
+    .form-label i { color: var(--cyan); font-size: 11px; }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text3); font-size: 14px; pointer-events: none;
+      transition: color .2s;
+    }
+    input {
+      width: 100%; padding: 13px 16px 13px 42px;
+      background: rgba(5,15,35,0.7);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-family: var(--mono); font-size: 14px;
+      transition: all .2s; outline: none;
+    }
+    input:focus {
+      border-color: rgba(0,229,255,0.5);
+      background: rgba(5,15,35,0.95);
+      box-shadow: 0 0 0 3px rgba(0,229,255,0.08), 0 0 20px rgba(0,229,255,0.05);
+    }
+    input:focus + .input-icon,
+    .input-wrap:focus-within .input-icon { color: var(--cyan); }
+    input::placeholder { color: var(--text3); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ══════════════════════════════════════
+       DEMO ACCOUNTS
+    ══════════════════════════════════════ */
+    .demo-box {
+      background: rgba(0,229,255,0.03);
+      border: 1px solid rgba(0,229,255,0.12);
+      border-radius: var(--radius-sm); padding: 18px; margin-bottom: 28px;
+    }
+    .demo-header {
+      display: flex; align-items: center; gap: 8px;
+      font-family: var(--mono); font-size: 10px; color: var(--cyan);
+      letter-spacing: 2px; margin-bottom: 14px; text-transform: uppercase;
+    }
+    .demo-row {
+      display: grid;
+      grid-template-columns: 1fr 2fr auto;
+      align-items: center; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+    }
+    .demo-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .demo-name { font-weight: 600; color: var(--text); }
+    .demo-info { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+    .demo-btn {
+      background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2);
+      color: var(--cyan); padding: 5px 14px; border-radius: 6px;
+      cursor: pointer; font-size: 11px; font-family: var(--mono);
+      font-weight: 600; letter-spacing: 1px; transition: all .2s; white-space: nowrap;
+    }
+    .demo-btn:hover { background: rgba(0,229,255,0.2); transform: scale(1.04); }
+
+    /* ══════════════════════════════════════
+       DASHBOARD — BALANCE
+    ══════════════════════════════════════ */
+    .balance-card {
+      background: linear-gradient(135deg, rgba(0,30,60,0.9) 0%, rgba(10,5,30,0.9) 100%);
+      border: 1px solid var(--border2);
+      border-radius: 20px; padding: 36px 40px;
+      position: relative; overflow: hidden; margin-bottom: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .balance-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(0,229,255,0.07) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 50%, rgba(168,85,247,0.07) 0%, transparent 60%);
+    }
+    .balance-card-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      position: relative; z-index: 1;
+    }
+    .balance-card-chip {
+      width: 42px; height: 32px; border-radius: 6px;
+      background: linear-gradient(135deg, #d4a943, #f5d98a);
+      position: relative;
+    }
+    .balance-card-chip::after {
+      content: ''; position: absolute;
+      top: 50%; left: 0; right: 0; height: 1px;
+      background: rgba(0,0,0,0.3); transform: translateY(-50%);
+    }
+    .balance-network {
+      display: flex; gap: -6px;
+    }
+    .balance-network span {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: block; opacity: .8;
+    }
+    .balance-network span:first-child { background: var(--red); margin-right: -10px; }
+    .balance-network span:last-child  { background: var(--yellow); }
+    .balance-meta {
+      margin-top: 28px; position: relative; z-index: 1;
+    }
+    .balance-label-text {
+      font-size: 11px; letter-spacing: 3px; color: rgba(255,255,255,0.4);
+      text-transform: uppercase; font-family: var(--mono); margin-bottom: 6px;
+    }
     .balance-amount {
-      font-family: var(--mono); font-size: 42px; color: var(--green);
-      text-shadow: 0 0 20px rgba(0,255,136,0.3);
-      letter-spacing: 2px; margin: 8px 0 4px;
+      font-family: var(--mono); font-size: clamp(32px, 5vw, 48px);
+      font-weight: 700; letter-spacing: 2px;
+      background: linear-gradient(90deg, #fff 30%, var(--cyan));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
     }
-    .balance-account { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-
-    /* ── QUICK ACTIONS ── */
-    .quick-actions {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-      margin-bottom: 24px;
-    }
-    .action-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 8px; padding: 20px; cursor: pointer;
-      transition: all .2s; text-align: center;
-    }
-    .action-card:hover {
-      border-color: var(--accent); background: rgba(0,212,255,0.05);
-      transform: translateY(-2px);
-    }
-    .action-icon { font-size: 28px; margin-bottom: 8px; }
-    .action-label { font-size: 13px; font-weight: 600; letter-spacing: 1px; color: var(--text); }
-
-    /* ── TRANSACTION TABLE ── */
-    .txn-list { list-style: none; }
-    .txn-item {
+    .balance-card-footer {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-      animation: fadeIn .3s ease;
+      position: relative; z-index: 1; border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 16px; margin-top: 4px;
     }
-    .txn-item:last-child { border-bottom: none; }
-    .txn-left { display: flex; align-items: center; gap: 12px; }
-    .txn-badge {
-      width: 36px; height: 36px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-    }
-    .txn-badge.deposit   { background: rgba(0,255,136,0.1); }
-    .txn-badge.withdraw  { background: rgba(255,68,102,0.1); }
-    .txn-badge.transfer  { background: rgba(255,215,0,0.1); }
-    .txn-desc { font-size: 14px; font-weight: 500; }
-    .txn-time { font-family: var(--mono); font-size: 11px; color: var(--muted); }
-    .txn-right { text-align: right; }
-    .txn-amount { font-family: var(--mono); font-size: 15px; font-weight: 600; }
-    .txn-amount.cr { color: var(--green); }
-    .txn-amount.dr { color: var(--red); }
-    .txn-balance { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    .balance-holder { font-size: 14px; font-weight: 600; letter-spacing: 1px; }
+    .balance-acc    { font-family: var(--mono); font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
 
-    /* ── ALERT ── */
-    .alert {
-      padding: 12px 16px; border-radius: 6px; margin-bottom: 16px;
-      font-family: var(--mono); font-size: 13px; display: none;
-    }
-    .alert.show { display: block; animation: fadeIn .2s; }
-    .alert-success { background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); color: var(--green); }
-    .alert-error   { background: rgba(255,68,102,0.1); border: 1px solid rgba(255,68,102,0.3); color: var(--red); }
-
-    /* ── NAV ── */
+    /* ══════════════════════════════════════
+       DASHBOARD NAV
+    ══════════════════════════════════════ */
     .dash-nav {
-      display: flex; gap: 4px; margin-bottom: 24px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 8px; padding: 4px;
+      display: flex; gap: 6px; margin-bottom: 28px;
+      background: rgba(5,12,28,0.8); border: 1px solid var(--border);
+      border-radius: 14px; padding: 6px; backdrop-filter: blur(12px);
     }
     .dash-nav button {
-      flex: 1; padding: 10px; border: none; border-radius: 6px;
-      background: transparent; color: var(--muted);
+      flex: 1; padding: 10px 6px; border: none; border-radius: 10px;
+      background: transparent; color: var(--text3);
       font-family: var(--sans); font-size: 13px; font-weight: 600;
-      letter-spacing: 1px; cursor: pointer; transition: all .2s;
+      letter-spacing: .3px; cursor: pointer; transition: all .25s;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
     }
+    .dash-nav button i { font-size: 13px; }
+    .dash-nav button:hover { color: var(--text2); background: rgba(255,255,255,0.04); }
     .dash-nav button.active {
-      background: rgba(0,212,255,0.15); color: var(--accent);
+      background: rgba(0,229,255,0.1);
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0,229,255,0.1);
     }
 
     .dash-panel { display: none; }
-    .dash-panel.active { display: block; animation: fadeIn .3s; }
+    .dash-panel.active { display: block; animation: screenIn .3s ease; }
 
-    /* ── TICKER ── */
-    .status-bar {
-      font-family: var(--mono); font-size: 11px; color: var(--muted);
-      text-align: center; padding: 8px; letter-spacing: 2px;
+    /* ══════════════════════════════════════
+       QUICK ACTIONS (OVERVIEW)
+    ══════════════════════════════════════ */
+    .quick-actions {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+      margin-bottom: 28px;
     }
-    .dot { display: inline-block; width: 6px; height: 6px; background: var(--green);
-           border-radius: 50%; margin-right: 6px; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .action-card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px 16px; cursor: pointer;
+      transition: all .3s cubic-bezier(.22,.68,0,1.2); text-align: center;
+      backdrop-filter: blur(12px);
+    }
+    .action-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.3), var(--glow-cyan);
+    }
+    .action-card:hover .action-icon-wrap { transform: scale(1.1); }
+    .action-icon-wrap {
+      width: 52px; height: 52px; border-radius: 14px; margin: 0 auto 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; transition: transform .3s;
+    }
+    .action-icon-wrap.cyan   { background: rgba(0,229,255,0.12);  color: var(--cyan); }
+    .action-icon-wrap.purple { background: rgba(168,85,247,0.12); color: var(--purple); }
+    .action-icon-wrap.pink   { background: rgba(236,72,153,0.12); color: var(--pink); }
+    .action-icon-wrap.green  { background: rgba(16,255,176,0.12); color: var(--green); }
+    .action-label { font-size: 13px; font-weight: 600; color: var(--text); letter-spacing: .3px; }
+    .action-sub   { font-size: 11px; color: var(--text3); margin-top: 3px; }
 
+    .logout-row { text-align: center; padding-top: 8px; }
+
+    /* ══════════════════════════════════════
+       FORM PANELS (Deposit / Withdraw / Transfer)
+    ══════════════════════════════════════ */
+    .panel-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 28px;
+    }
+    .panel-header-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .panel-header-text h3 { font-size: 18px; font-weight: 700; }
+    .panel-header-text p  { font-size: 13px; color: var(--text2); margin-top: 2px; }
+    .panel-limit {
+      display: flex; align-items: center; gap: 8px; margin-top: 16px;
+      background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.15);
+      border-radius: 8px; padding: 10px 14px;
+      font-size: 12px; color: var(--yellow); font-family: var(--mono);
+    }
+
+    /* ══════════════════════════════════════
+       ALERTS
+    ══════════════════════════════════════ */
+    .alert {
+      padding: 13px 16px; border-radius: 10px; margin-bottom: 18px;
+      font-size: 13px; display: none; align-items: center; gap: 10px;
+      font-weight: 500;
+    }
+    .alert.show { display: flex; animation: alertIn .3s ease; }
+    @keyframes alertIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:none} }
+    .alert i { font-size: 15px; flex-shrink: 0; }
+    .alert-success { background: rgba(16,255,176,0.08); border: 1px solid rgba(16,255,176,0.25); color: var(--green); }
+    .alert-error   { background: rgba(255,51,102,0.08);  border: 1px solid rgba(255,51,102,0.25);  color: var(--red); }
+
+    /* ══════════════════════════════════════
+       TRANSACTION HISTORY
+    ══════════════════════════════════════ */
+    .txn-header {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;
+    }
+    .txn-header h3 { font-size: 16px; font-weight: 700; }
+    .txn-count {
+      background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2);
+      color: var(--cyan); font-family: var(--mono); font-size: 12px;
+      padding: 4px 12px; border-radius: 20px;
+    }
+    .txn-list { list-style: none; }
+    .txn-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      animation: screenIn .3s ease;
+      transition: background .2s;
+    }
+    .txn-item:last-child { border-bottom: none; }
+    .txn-left { display: flex; align-items: center; gap: 14px; }
+    .txn-badge {
+      width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .txn-badge.deposit  { background: rgba(16,255,176,0.1);   }
+    .txn-badge.withdraw { background: rgba(255,51,102,0.1);   }
+    .txn-badge.transfer { background: rgba(168,85,247,0.1);   }
+    .txn-desc { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+    .txn-time { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+    .txn-right { text-align: right; }
+    .txn-amount { font-family: var(--mono); font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .txn-amount.cr { color: var(--green); }
+    .txn-amount.dr { color: var(--red); }
+    .txn-balance   { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+    .empty-state {
+      text-align: center; padding: 48px 20px;
+    }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: .4; }
+    .empty-text { font-size: 14px; color: var(--text3); }
+
+    /* ══════════════════════════════════════
+       BACK LINK
+    ══════════════════════════════════════ */
     .back-link {
-      font-family: var(--mono); font-size: 12px; color: var(--muted);
-      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
-      margin-bottom: 20px; transition: color .2s;
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 13px; color: var(--text3); cursor: pointer;
+      margin-bottom: 28px; transition: color .2s; font-weight: 500;
     }
-    .back-link:hover { color: var(--accent); }
+    .back-link:hover { color: var(--cyan); }
 
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    /* ══════════════════════════════════════
+       DIVIDER
+    ══════════════════════════════════════ */
+    .divider {
+      display: flex; align-items: center; gap: 12px; margin: 24px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+    .divider span { font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: 2px; white-space: nowrap; }
 
+    /* ══════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════ */
     @media (max-width: 640px) {
-      .form-row, .two-col, .quick-actions { grid-template-columns: 1fr; }
-      .balance-amount { font-size: 30px; }
-      .landing-hero h1 { font-size: 26px; }
+      header { padding: 0 20px; }
+      main   { padding: 28px 16px; }
+      .form-row, .quick-actions, .feature-grid { grid-template-columns: 1fr; }
+      .balance-amount { font-size: 28px; }
+      .demo-row { grid-template-columns: 1fr auto; }
+      .demo-info { display: none; }
+      .dash-nav button span { display: none; }
+      .balance-card { padding: 24px 24px; }
+    }
+    @media (max-width: 480px) {
+      .quick-actions { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="logo">NEXA<span>BANK</span></div>
-  <div id="header-info">
-    <div class="acc-name" id="hdr-name">— NOT LOGGED IN —</div>
-    <div id="hdr-acc">Secure ATM Portal • v2.0</div>
-  </div>
-</header>
+<!-- BACKGROUND -->
+<div class="bg-canvas">
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+</div>
+<div class="bg-grid"></div>
 
-<main>
+<div class="app-wrap">
 
-  <!-- ═══════════════════ LANDING ═══════════════════ -->
-  <div class="screen active" id="screen-landing">
-    <div class="landing-hero">
-      <div class="atm-icon">🏧</div>
-      <h1>NEXABANK ATM</h1>
-      <p>SECURE DIGITAL BANKING SYSTEM</p>
-      <div class="btn-group">
-        <button class="btn btn-primary" onclick="show('screen-login')">LOGIN TO ACCOUNT</button>
-        <button class="btn btn-secondary" onclick="show('screen-create')">OPEN NEW ACCOUNT</button>
+  <!-- ═══════════════ HEADER ═══════════════ -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon"><i class="fa-solid fa-landmark"></i></div>
+      <div class="logo-text">NEXA<span>BANK</span></div>
+    </div>
+    <div class="header-right">
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        ALL SYSTEMS ONLINE
+      </div>
+      <div id="hdr-user" style="display:none">
+        <div>
+          <div id="hdr-name">—</div>
+          <div id="hdr-acc">—</div>
+        </div>
+        <div class="avatar" id="hdr-avatar">U</div>
       </div>
     </div>
-    <div class="status-bar"><span class="dot"></span>SYSTEM ONLINE • ALL SERVICES OPERATIONAL</div>
-  </div>
+  </header>
 
-  <!-- ═══════════════════ LOGIN ═══════════════════ -->
-  <div class="screen" id="screen-login">
-    <span class="back-link" onclick="show('screen-landing')">← BACK</span>
-    <div class="card">
-      <div class="card-title">// ACCOUNT LOGIN</div>
-      <div class="demo-box">
-        <h4>🔑 DEMO ACCOUNTS (click USE to fill)</h4>
-        <div class="demo-row">
-          <span>Uday Sharma</span>
-          <span style="color:var(--muted)">ACC: 10010001 | PIN: 1234 | BAL: ₹50,000</span>
-          <button class="demo-fill" onclick="fillLogin('10010001','1234')">USE</button>
+  <!-- ═══════════════ MAIN ═══════════════ -->
+  <main>
+
+    <!-- ─────────── LANDING ─────────── -->
+    <div class="screen active" id="screen-landing">
+      <div class="landing-hero">
+        <div class="hero-badge">
+          <i class="fa-solid fa-shield-halved"></i>
+          SECURE DIGITAL BANKING
         </div>
-        <div class="demo-row">
-          <span>Priya Patel</span>
-          <span style="color:var(--muted)">ACC: 10010002 | PIN: 5678 | BAL: ₹25,000</span>
-          <button class="demo-fill" onclick="fillLogin('10010002','5678')">USE</button>
-        </div>
-        <div class="demo-row">
-          <span>Rohan Mehta</span>
-          <span style="color:var(--muted)">ACC: 10010003 | PIN: 9999 | BAL: ₹10,000</span>
-          <button class="demo-fill" onclick="fillLogin('10010003','9999')">USE</button>
+        <h1 class="hero-title">
+          Banking That Feels<br>
+          <span class="grad-cyan">Like The Future</span>
+        </h1>
+        <p class="hero-sub">
+          Manage your money with military-grade security,
+          real-time transfers, and a seamless ATM experience.
+        </p>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="show('screen-login')">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            Login to Account
+          </button>
+          <button class="btn btn-ghost" onclick="show('screen-create')">
+            <i class="fa-solid fa-plus"></i>
+            Open New Account
+          </button>
         </div>
       </div>
-      <div id="login-alert" class="alert"></div>
-      <div class="form-group">
-        <label>Account Number</label>
-        <input id="login-acc" type="text" placeholder="Enter account number" maxlength="12" />
+
+      <div class="feature-grid">
+        <div class="feat-card">
+          <div class="feat-icon">⚡</div>
+          <div class="feat-title">Instant Transfers</div>
+          <div class="feat-desc">Send money between accounts in real-time with zero delays.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">🛡️</div>
+          <div class="feat-title">PIN Protection</div>
+          <div class="feat-desc">Every account secured with a unique 4-digit PIN.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-icon">📊</div>
+          <div class="feat-title">Full History</div>
+          <div class="feat-desc">Track every transaction with timestamps and descriptions.</div>
+        </div>
       </div>
-      <div class="form-group">
-        <label>4-Digit PIN</label>
-        <input id="login-pin" type="password" placeholder="• • • •" maxlength="4" />
-      </div>
-      <button class="btn btn-primary" style="width:100%" onclick="doLogin()">ACCESS ACCOUNT</button>
     </div>
-  </div>
 
-  <!-- ═══════════════════ CREATE ACCOUNT ═══════════════════ -->
-  <div class="screen" id="screen-create">
-    <span class="back-link" onclick="show('screen-landing')">← BACK</span>
-    <div class="card">
-      <div class="card-title">// OPEN NEW ACCOUNT</div>
-      <div id="create-alert" class="alert"></div>
-      <div class="form-group">
-        <label>Full Name</label>
-        <input id="create-name" type="text" placeholder="Your full name" />
-      </div>
-      <div class="form-row">
+    <!-- ─────────── LOGIN ─────────── -->
+    <div class="screen" id="screen-login">
+      <span class="back-link" onclick="show('screen-landing')">
+        <i class="fa-solid fa-arrow-left"></i> Back to Home
+      </span>
+      <div class="card" style="max-width:520px; margin:0 auto">
+        <div class="panel-header">
+          <div class="panel-header-icon" style="background:rgba(0,229,255,0.1);color:var(--cyan)">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <div class="panel-header-text">
+            <h3>Welcome Back</h3>
+            <p>Enter your credentials to access your account</p>
+          </div>
+        </div>
+
+        <div class="demo-box">
+          <div class="demo-header">
+            <i class="fa-solid fa-key"></i>
+            Demo Accounts — Click USE to Fill
+          </div>
+          <div class="demo-row">
+            <span class="demo-name">Uday Sharma</span>
+            <span class="demo-info">ACC: 10010001 · PIN: 1234 · ₹50,000</span>
+            <button class="demo-btn" onclick="fillLogin('10010001','1234')">USE</button>
+          </div>
+          <div class="demo-row">
+            <span class="demo-name">Priya Patel</span>
+            <span class="demo-info">ACC: 10010002 · PIN: 5678 · ₹25,000</span>
+            <button class="demo-btn" onclick="fillLogin('10010002','5678')">USE</button>
+          </div>
+          <div class="demo-row">
+            <span class="demo-name">Rohan Mehta</span>
+            <span class="demo-info">ACC: 10010003 · PIN: 9999 · ₹10,000</span>
+            <button class="demo-btn" onclick="fillLogin('10010003','9999')">USE</button>
+          </div>
+        </div>
+
+        <div id="login-alert" class="alert"></div>
+
         <div class="form-group">
-          <label>4-Digit PIN</label>
-          <input id="create-pin" type="password" placeholder="Choose PIN" maxlength="4" />
-        </div>
-        <div class="form-group">
-          <label>Initial Deposit (min ₹500)</label>
-          <input id="create-deposit" type="number" placeholder="e.g. 5000" min="500" />
-        </div>
-      </div>
-      <button class="btn btn-primary" style="width:100%" onclick="doCreate()">CREATE ACCOUNT</button>
-    </div>
-  </div>
-
-  <!-- ═══════════════════ DASHBOARD ═══════════════════ -->
-  <div class="screen" id="screen-dash">
-    <div class="balance-display">
-      <div class="balance-label">AVAILABLE BALANCE</div>
-      <div class="balance-amount" id="dash-balance">₹0.00</div>
-      <div class="balance-account" id="dash-acc-info">—</div>
-    </div>
-
-    <div class="dash-nav">
-      <button class="active" onclick="switchPanel('overview')">OVERVIEW</button>
-      <button onclick="switchPanel('deposit')">DEPOSIT</button>
-      <button onclick="switchPanel('withdraw')">WITHDRAW</button>
-      <button onclick="switchPanel('transfer')">TRANSFER</button>
-      <button onclick="switchPanel('history')">HISTORY</button>
-    </div>
-
-    <!-- OVERVIEW -->
-    <div class="dash-panel active" id="panel-overview">
-      <div class="quick-actions">
-        <div class="action-card" onclick="switchPanel('deposit')">
-          <div class="action-icon">💰</div>
-          <div class="action-label">DEPOSIT</div>
-        </div>
-        <div class="action-card" onclick="switchPanel('withdraw')">
-          <div class="action-icon">🏧</div>
-          <div class="action-label">WITHDRAW</div>
-        </div>
-        <div class="action-card" onclick="switchPanel('transfer')">
-          <div class="action-icon">⚡</div>
-          <div class="action-label">TRANSFER</div>
-        </div>
-        <div class="action-card" onclick="switchPanel('history')">
-          <div class="action-icon">📋</div>
-          <div class="action-label">HISTORY</div>
-        </div>
-      </div>
-      <div style="text-align:center">
-        <button class="btn btn-danger btn-sm" onclick="logout()">LOGOUT</button>
-      </div>
-    </div>
-
-    <!-- DEPOSIT -->
-    <div class="dash-panel" id="panel-deposit">
-      <div class="card">
-        <div class="card-title">// CASH DEPOSIT</div>
-        <div id="deposit-alert" class="alert"></div>
-        <div class="form-group">
-          <label>Amount (₹)</label>
-          <input id="dep-amount" type="number" placeholder="Enter amount" min="1" />
+          <label class="form-label"><i class="fa-solid fa-credit-card"></i> Account Number</label>
+          <div class="input-wrap">
+            <input id="login-acc" type="text" placeholder="e.g. 10010001" maxlength="12" />
+            <i class="fa-solid fa-hashtag input-icon"></i>
+          </div>
         </div>
         <div class="form-group">
-          <label>Note (optional)</label>
-          <input id="dep-note" type="text" placeholder="e.g. Salary, Gift..." />
+          <label class="form-label"><i class="fa-solid fa-key"></i> 4-Digit PIN</label>
+          <div class="input-wrap">
+            <input id="login-pin" type="password" placeholder="••••" maxlength="4" />
+            <i class="fa-solid fa-lock input-icon"></i>
+          </div>
         </div>
-        <button class="btn btn-primary" onclick="doDeposit()">DEPOSIT NOW</button>
+        <button class="btn btn-primary btn-full" onclick="doLogin()">
+          <i class="fa-solid fa-right-to-bracket"></i>
+          Access Account
+        </button>
+
+        <div class="divider"><span>NEW HERE?</span></div>
+        <button class="btn btn-ghost btn-full" onclick="show('screen-create')">
+          <i class="fa-solid fa-user-plus"></i>
+          Open a New Account
+        </button>
       </div>
     </div>
 
-    <!-- WITHDRAW -->
-    <div class="dash-panel" id="panel-withdraw">
-      <div class="card">
-        <div class="card-title">// CASH WITHDRAWAL</div>
-        <div id="withdraw-alert" class="alert"></div>
-        <div class="form-group">
-          <label>Amount (₹)</label>
-          <input id="wdw-amount" type="number" placeholder="Enter amount" min="1" />
+    <!-- ─────────── CREATE ACCOUNT ─────────── -->
+    <div class="screen" id="screen-create">
+      <span class="back-link" onclick="show('screen-landing')">
+        <i class="fa-solid fa-arrow-left"></i> Back to Home
+      </span>
+      <div class="card" style="max-width:520px; margin:0 auto">
+        <div class="panel-header">
+          <div class="panel-header-icon" style="background:rgba(168,85,247,0.1);color:var(--purple)">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div class="panel-header-text">
+            <h3>Open New Account</h3>
+            <p>Create your NexaBank account in seconds</p>
+          </div>
         </div>
+        <div id="create-alert" class="alert"></div>
         <div class="form-group">
-          <label>Note (optional)</label>
-          <input id="wdw-note" type="text" placeholder="e.g. Rent, Food..." />
+          <label class="form-label"><i class="fa-solid fa-user"></i> Full Name</label>
+          <div class="input-wrap">
+            <input id="create-name" type="text" placeholder="Your full name" />
+            <i class="fa-solid fa-user input-icon"></i>
+          </div>
         </div>
-        <button class="btn btn-primary" onclick="doWithdraw()">WITHDRAW NOW</button>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-key"></i> 4-Digit PIN</label>
+            <div class="input-wrap">
+              <input id="create-pin" type="password" placeholder="Choose PIN" maxlength="4" />
+              <i class="fa-solid fa-lock input-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-rupee-sign"></i> Initial Deposit</label>
+            <div class="input-wrap">
+              <input id="create-deposit" type="number" placeholder="Min ₹500" min="500" />
+              <i class="fa-solid fa-coins input-icon"></i>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-purple btn-full" onclick="doCreate()">
+          <i class="fa-solid fa-check"></i>
+          Create Account
+        </button>
       </div>
     </div>
 
-    <!-- TRANSFER -->
-    <div class="dash-panel" id="panel-transfer">
-      <div class="card">
-        <div class="card-title">// FUND TRANSFER</div>
-        <div id="transfer-alert" class="alert"></div>
-        <div class="form-group">
-          <label>Recipient Account Number</label>
-          <input id="txfr-to" type="text" placeholder="Enter account number" />
+    <!-- ─────────── DASHBOARD ─────────── -->
+    <div class="screen" id="screen-dash">
+
+      <!-- Balance Card -->
+      <div class="balance-card">
+        <div class="balance-card-top">
+          <div class="balance-card-chip"></div>
+          <div class="balance-network">
+            <span></span><span></span>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Amount (₹)</label>
-          <input id="txfr-amount" type="number" placeholder="Enter amount" min="1" />
+        <div class="balance-meta">
+          <div class="balance-label-text">Available Balance</div>
+          <div class="balance-amount" id="dash-balance">₹0.00</div>
         </div>
-        <button class="btn btn-primary" onclick="doTransfer()">TRANSFER NOW</button>
+        <div class="balance-card-footer">
+          <div>
+            <div class="balance-holder" id="dash-holder">—</div>
+            <div class="balance-acc"    id="dash-acc-info">—</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:var(--mono);letter-spacing:1px;">NEXABANK</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);font-family:var(--mono);">MEMBER</div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- HISTORY -->
-    <div class="dash-panel" id="panel-history">
-      <div class="card">
-        <div class="card-title">// TRANSACTION HISTORY</div>
-        <ul class="txn-list" id="txn-list">
-          <li style="text-align:center;padding:20px;color:var(--muted);font-family:var(--mono);font-size:13px;">
-            Loading transactions...
-          </li>
-        </ul>
+      <!-- Nav -->
+      <div class="dash-nav">
+        <button class="active" onclick="switchPanel('overview', this)">
+          <i class="fa-solid fa-grid-2"></i><span>Overview</span>
+        </button>
+        <button onclick="switchPanel('deposit', this)">
+          <i class="fa-solid fa-arrow-down-to-line"></i><span>Deposit</span>
+        </button>
+        <button onclick="switchPanel('withdraw', this)">
+          <i class="fa-solid fa-arrow-up-from-line"></i><span>Withdraw</span>
+        </button>
+        <button onclick="switchPanel('transfer', this)">
+          <i class="fa-solid fa-arrow-right-arrow-left"></i><span>Transfer</span>
+        </button>
+        <button onclick="switchPanel('history', this)">
+          <i class="fa-solid fa-clock-rotate-left"></i><span>History</span>
+        </button>
       </div>
-    </div>
 
-  </div><!-- /screen-dash -->
+      <!-- OVERVIEW -->
+      <div class="dash-panel active" id="panel-overview">
+        <div class="quick-actions">
+          <div class="action-card" onclick="switchPanel('deposit', document.querySelector('.dash-nav button:nth-child(2)'))">
+            <div class="action-icon-wrap cyan"><i class="fa-solid fa-arrow-down-to-line"></i></div>
+            <div class="action-label">Deposit</div>
+            <div class="action-sub">Add funds</div>
+          </div>
+          <div class="action-card" onclick="switchPanel('withdraw', document.querySelector('.dash-nav button:nth-child(3)'))">
+            <div class="action-icon-wrap purple"><i class="fa-solid fa-arrow-up-from-line"></i></div>
+            <div class="action-label">Withdraw</div>
+            <div class="action-sub">Get cash</div>
+          </div>
+          <div class="action-card" onclick="switchPanel('transfer', document.querySelector('.dash-nav button:nth-child(4)'))">
+            <div class="action-icon-wrap pink"><i class="fa-solid fa-paper-plane"></i></div>
+            <div class="action-label">Transfer</div>
+            <div class="action-sub">Send money</div>
+          </div>
+          <div class="action-card" onclick="switchPanel('history', document.querySelector('.dash-nav button:nth-child(5)'))">
+            <div class="action-icon-wrap green"><i class="fa-solid fa-chart-line"></i></div>
+            <div class="action-label">History</div>
+            <div class="action-sub">View all</div>
+          </div>
+        </div>
+        <div class="logout-row">
+          <button class="btn btn-danger btn-sm" onclick="logout()">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
+      </div>
 
-</main>
+      <!-- DEPOSIT -->
+      <div class="dash-panel" id="panel-deposit">
+        <div class="card">
+          <div class="panel-header">
+            <div class="panel-header-icon" style="background:rgba(0,229,255,0.1);color:var(--cyan)">
+              <i class="fa-solid fa-arrow-down-to-line"></i>
+            </div>
+            <div class="panel-header-text">
+              <h3>Cash Deposit</h3>
+              <p>Add money to your account</p>
+            </div>
+          </div>
+          <div id="deposit-alert" class="alert"></div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-rupee-sign"></i> Amount (₹)</label>
+            <div class="input-wrap">
+              <input id="dep-amount" type="number" placeholder="Enter amount" min="1" />
+              <i class="fa-solid fa-coins input-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-note-sticky"></i> Note (optional)</label>
+            <div class="input-wrap">
+              <input id="dep-note" type="text" placeholder="e.g. Salary, Gift..." />
+              <i class="fa-solid fa-pen input-icon"></i>
+            </div>
+          </div>
+          <div class="panel-limit">
+            <i class="fa-solid fa-circle-info"></i>
+            Maximum single deposit: ₹2,00,000
+          </div>
+          <div style="margin-top:20px">
+            <button class="btn btn-primary" onclick="doDeposit()">
+              <i class="fa-solid fa-arrow-down-to-line"></i>
+              Deposit Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WITHDRAW -->
+      <div class="dash-panel" id="panel-withdraw">
+        <div class="card">
+          <div class="panel-header">
+            <div class="panel-header-icon" style="background:rgba(168,85,247,0.1);color:var(--purple)">
+              <i class="fa-solid fa-arrow-up-from-line"></i>
+            </div>
+            <div class="panel-header-text">
+              <h3>Cash Withdrawal</h3>
+              <p>Withdraw money from your account</p>
+            </div>
+          </div>
+          <div id="withdraw-alert" class="alert"></div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-rupee-sign"></i> Amount (₹)</label>
+            <div class="input-wrap">
+              <input id="wdw-amount" type="number" placeholder="Enter amount" min="1" />
+              <i class="fa-solid fa-coins input-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-note-sticky"></i> Note (optional)</label>
+            <div class="input-wrap">
+              <input id="wdw-note" type="text" placeholder="e.g. Rent, Food..." />
+              <i class="fa-solid fa-pen input-icon"></i>
+            </div>
+          </div>
+          <div class="panel-limit">
+            <i class="fa-solid fa-circle-info"></i>
+            Maximum single withdrawal: ₹50,000
+          </div>
+          <div style="margin-top:20px">
+            <button class="btn btn-purple" onclick="doWithdraw()">
+              <i class="fa-solid fa-arrow-up-from-line"></i>
+              Withdraw Now
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSFER -->
+      <div class="dash-panel" id="panel-transfer">
+        <div class="card">
+          <div class="panel-header">
+            <div class="panel-header-icon" style="background:rgba(236,72,153,0.1);color:var(--pink)">
+              <i class="fa-solid fa-paper-plane"></i>
+            </div>
+            <div class="panel-header-text">
+              <h3>Fund Transfer</h3>
+              <p>Send money to another NexaBank account</p>
+            </div>
+          </div>
+          <div id="transfer-alert" class="alert"></div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-user"></i> Recipient Account Number</label>
+            <div class="input-wrap">
+              <input id="txfr-to" type="text" placeholder="Enter account number" />
+              <i class="fa-solid fa-at input-icon"></i>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><i class="fa-solid fa-rupee-sign"></i> Amount (₹)</label>
+            <div class="input-wrap">
+              <input id="txfr-amount" type="number" placeholder="Enter amount" min="1" />
+              <i class="fa-solid fa-coins input-icon"></i>
+            </div>
+          </div>
+          <div style="margin-top:8px">
+            <button class="btn btn-primary" onclick="doTransfer()" style="background:linear-gradient(135deg,#be185d,var(--pink));box-shadow:0 4px 20px rgba(236,72,153,0.3)">
+              <i class="fa-solid fa-paper-plane"></i>
+              Send Money
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="dash-panel" id="panel-history">
+        <div class="card">
+          <div class="txn-header">
+            <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--cyan);margin-right:8px"></i>Transaction History</h3>
+            <span class="txn-count" id="txn-count">0 records</span>
+          </div>
+          <ul class="txn-list" id="txn-list">
+            <li class="empty-state">
+              <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
+              <div class="empty-text">No transactions yet</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div><!-- /screen-dash -->
+
+  </main>
+</div><!-- /app-wrap -->
 
 <script>
-  // ── STATE ──
   let currentAccount = null;
 
   // ── NAVIGATION ──
@@ -505,42 +1007,46 @@
     document.getElementById(id).classList.add('active');
   }
 
-  function switchPanel(name) {
+  function switchPanel(name, btn) {
     document.querySelectorAll('.dash-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.dash-nav button').forEach(b => b.classList.remove('active'));
     document.getElementById('panel-' + name).classList.add('active');
-    event.target.classList.add('active');
+    if (btn) btn.classList.add('active');
     if (name === 'history') loadHistory();
     clearAlerts();
   }
 
   function clearAlerts() {
-    document.querySelectorAll('.alert').forEach(a => { a.className = 'alert'; a.textContent = ''; });
+    document.querySelectorAll('.alert').forEach(a => { a.className = 'alert'; a.innerHTML = ''; });
   }
 
   function showAlert(id, msg, type) {
     const el = document.getElementById(id);
+    const icon = type === 'success'
+      ? '<i class="fa-solid fa-circle-check"></i>'
+      : '<i class="fa-solid fa-circle-xmark"></i>';
     el.className = 'alert show alert-' + type;
-    el.textContent = (type === 'success' ? '✓ ' : '✗ ') + msg;
-    setTimeout(() => { el.className = 'alert'; }, 4000);
+    el.innerHTML = icon + msg;
+    setTimeout(() => { el.className = 'alert'; el.innerHTML = ''; }, 4500);
   }
 
-  // ── HEADER UPDATE ──
+  // ── HEADER ──
   function updateHeader() {
     if (currentAccount) {
-      document.getElementById('hdr-name').textContent = currentAccount.holderName.toUpperCase();
-      document.getElementById('hdr-acc').textContent = 'ACC: ' + currentAccount.maskedAccount;
+      document.getElementById('hdr-name').textContent = currentAccount.holderName;
+      document.getElementById('hdr-acc').textContent  = currentAccount.maskedAccount;
+      document.getElementById('hdr-avatar').textContent = currentAccount.holderName.charAt(0).toUpperCase();
+      document.getElementById('hdr-user').style.display = 'flex';
     } else {
-      document.getElementById('hdr-name').textContent = '— NOT LOGGED IN —';
-      document.getElementById('hdr-acc').textContent = 'Secure ATM Portal • v2.0';
+      document.getElementById('hdr-user').style.display = 'none';
     }
   }
 
   function updateBalanceDisplay(balance) {
     document.getElementById('dash-balance').textContent =
       '₹' + parseFloat(balance).toLocaleString('en-IN', { minimumFractionDigits: 2 });
-    document.getElementById('dash-acc-info').textContent =
-      currentAccount.holderName + ' • ' + currentAccount.maskedAccount;
+    document.getElementById('dash-holder').textContent   = currentAccount.holderName;
+    document.getElementById('dash-acc-info').textContent = currentAccount.maskedAccount;
   }
 
   // ── DEMO FILL ──
@@ -549,7 +1055,7 @@
     document.getElementById('login-pin').value = pin;
   }
 
-  // ── API HELPERS ──
+  // ── API ──
   async function api(method, endpoint, body) {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (body) opts.body = JSON.stringify(body);
@@ -568,7 +1074,7 @@
       updateHeader();
       updateBalanceDisplay(data.balance);
       show('screen-dash');
-      switchPanel('overview');
+      switchPanel('overview', document.querySelector('.dash-nav button'));
     } else {
       showAlert('login-alert', data.message, 'error');
     }
@@ -582,10 +1088,9 @@
     if (!name || !pin || !deposit) { showAlert('create-alert', 'Please fill all fields.', 'error'); return; }
     const data = await api('POST', '/account/create', { name, pin, initialDeposit: deposit });
     if (data.success) {
-      showAlert('create-alert',
-        data.message + ' Your Account No: ' + data.accountNumber, 'success');
+      showAlert('create-alert', data.message + ' Account No: <strong>' + data.accountNumber + '</strong>', 'success');
       document.getElementById('create-name').value = '';
-      document.getElementById('create-pin').value = '';
+      document.getElementById('create-pin').value  = '';
       document.getElementById('create-deposit').value = '';
     } else {
       showAlert('create-alert', data.message, 'error');
@@ -605,10 +1110,8 @@
       updateBalanceDisplay(data.newBalance);
       showAlert('deposit-alert', data.message, 'success');
       document.getElementById('dep-amount').value = '';
-      document.getElementById('dep-note').value = '';
-    } else {
-      showAlert('deposit-alert', data.message, 'error');
-    }
+      document.getElementById('dep-note').value   = '';
+    } else { showAlert('deposit-alert', data.message, 'error'); }
   }
 
   // ── WITHDRAW ──
@@ -624,9 +1127,7 @@
       updateBalanceDisplay(data.newBalance);
       showAlert('withdraw-alert', data.message, 'success');
       document.getElementById('wdw-amount').value = '';
-    } else {
-      showAlert('withdraw-alert', data.message, 'error');
-    }
+    } else { showAlert('withdraw-alert', data.message, 'error'); }
   }
 
   // ── TRANSFER ──
@@ -641,22 +1142,26 @@
       currentAccount.balance = data.newBalance;
       updateBalanceDisplay(data.newBalance);
       showAlert('transfer-alert', data.message, 'success');
-      document.getElementById('txfr-to').value = '';
+      document.getElementById('txfr-to').value     = '';
       document.getElementById('txfr-amount').value = '';
-    } else {
-      showAlert('transfer-alert', data.message, 'error');
-    }
+    } else { showAlert('transfer-alert', data.message, 'error'); }
   }
 
   // ── HISTORY ──
   async function loadHistory() {
     const data = await api('GET', '/transaction/history/' + currentAccount.accountNumber);
-    const list = document.getElementById('txn-list');
-    if (!data.success || !data.transactions.length) {
-      list.innerHTML = '<li style="text-align:center;padding:20px;color:var(--muted);font-family:var(--mono);font-size:13px;">No transactions yet.</li>';
+    const list  = document.getElementById('txn-list');
+    const count = document.getElementById('txn-count');
+    if (!data.success || !data.transactions || !data.transactions.length) {
+      count.textContent = '0 records';
+      list.innerHTML = `<li class="empty-state">
+        <div class="empty-icon"><i class="fa-solid fa-receipt"></i></div>
+        <div class="empty-text">No transactions yet</div>
+      </li>`;
       return;
     }
-    const icons = { DEPOSIT:'💚', WITHDRAW:'🔴', TRANSFER_OUT:'🟡', TRANSFER_IN:'🟢' };
+    count.textContent = data.transactions.length + ' records';
+    const icons  = { DEPOSIT:'💚', WITHDRAW:'🔴', TRANSFER_OUT:'🟡', TRANSFER_IN:'🟢' };
     const badges = { DEPOSIT:'deposit', WITHDRAW:'withdraw', TRANSFER_OUT:'transfer', TRANSFER_IN:'transfer' };
     list.innerHTML = data.transactions.map(t => {
       const cr = t.type === 'DEPOSIT' || t.type === 'TRANSFER_IN';
@@ -665,7 +1170,7 @@
           <div class="txn-badge ${badges[t.type] || 'deposit'}">${icons[t.type] || '💳'}</div>
           <div>
             <div class="txn-desc">${t.description}</div>
-            <div class="txn-time">${t.timestamp}</div>
+            <div class="txn-time"><i class="fa-regular fa-clock" style="margin-right:5px"></i>${t.timestamp}</div>
           </div>
         </div>
         <div class="txn-right">
